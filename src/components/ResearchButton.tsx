@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react'
-import type { SavingsGoal } from '../shared/types'
 import { loadTransactions, loadSettings, getTransactionsInPeriod, loadAchievementRecord, loadGoals, loadPlanetLog } from '../shared/storage'
 import { ACHIEVEMENTS, getAllPlanets, SETTINGS } from '../shared/labels'
 import type { PlanetRarity } from '../shared/labels'
@@ -79,7 +78,7 @@ function PlanetsMini() {
 
 // ─── Badge count computation ──────────────────────────────
 
-function computeBadge(goals: SavingsGoal[]): number {
+function computeBadge(): number {
   const now = new Date()
   const { payDay = 27 } = loadSettings()
   const periodYear = now.getDate() >= payDay
@@ -94,8 +93,6 @@ function computeBadge(goals: SavingsGoal[]): number {
 
   const allTx = loadTransactions()
   const periodTx = getTransactionsInPeriod(allTx, periodStart, periodEnd)
-  const totalIncome = periodTx.filter((t) => t.type === 'entrata').reduce((s, t) => s + t.amount, 0)
-  const totalExpenses = periodTx.filter((t) => t.type === 'uscita').reduce((s, t) => s + t.amount, 0)
   const expenses = periodTx.filter((t) => t.type === 'uscita')
 
   const earlyEnd = new Date(periodStart)
@@ -105,11 +102,7 @@ function computeBadge(goals: SavingsGoal[]): number {
   const done = [
     expenses.length >= 5,
     expenses.some((tx) => tx.isReceipt),
-    (() => {
-      const saved = totalIncome - totalExpenses
-      const goal = goals.find((g) => g.targetAmount && g.targetAmount > 0)
-      return !!goal && !!goal.targetAmount && saved >= goal.targetAmount * 0.5
-    })(),
+    expenses.some((tx) => !!tx.goalId),
     new Set(expenses.map((tx) => tx.category)).size >= 4,
     expenses.filter((tx) => tx.date >= periodFrom && tx.date <= earlyStr).length >= 3,
   ]
@@ -159,7 +152,7 @@ export default function ResearchButton() {
   const totalExpenses = periodTx.filter((t) => t.type === 'uscita').reduce((s, t) => s + t.amount, 0)
   const goals = loadGoals()
   // Badge uses only current period
-  const badgeCount = computeBadge(goals)
+  const badgeCount = computeBadge()
 
   return (
     <>
