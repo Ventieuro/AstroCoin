@@ -16,12 +16,36 @@ export interface ProductPriceEntry {
   discountType?: string
 }
 
+export const REPARTI_SUPERMERCATO = [
+  { id: 'ortofrutta',  emoji: '🥦', label: 'Ortofrutta' },
+  { id: 'pane',        emoji: '🍞', label: 'Pane & Pasticceria' },
+  { id: 'salumi',      emoji: '🥓', label: 'Salumi & Gastronomia' },
+  { id: 'carne',       emoji: '🥩', label: 'Carne' },
+  { id: 'pesce',       emoji: '🐟', label: 'Pesce' },
+  { id: 'latticini',   emoji: '🧀', label: 'Latticini & Uova' },
+  { id: 'surgelati',   emoji: '🧊', label: 'Surgelati' },
+  { id: 'dispensa',    emoji: '🫙', label: 'Dispensa' },
+  { id: 'dolci',       emoji: '🍬', label: 'Dolci & Snack' },
+  { id: 'colazione',   emoji: '☕', label: 'Caffè & Colazione' },
+  { id: 'bevande',     emoji: '🥤', label: 'Bevande' },
+  { id: 'vini',        emoji: '🍷', label: 'Vini & Alcolici' },
+  { id: 'igiene',      emoji: '🧴', label: 'Igiene Personale' },
+  { id: 'pulizia',     emoji: '🧹', label: 'Pulizia Casa' },
+  { id: 'bambini',     emoji: '👶', label: 'Bambini' },
+  { id: 'animali',     emoji: '🐾', label: 'Animali' },
+  { id: 'farmacia',    emoji: '💊', label: 'Farmacia' },
+  { id: 'bio',         emoji: '🌿', label: 'Bio & Naturale' },
+] as const
+
+export type RepartoId = typeof REPARTI_SUPERMERCATO[number]['id']
+
 export interface ProductEntry {
   id: string
   name: string               // nome canonico (scelto dall'utente o dal primo OCR)
   aliases: string[]          // varianti OCR conosciute
   priceHistory: ProductPriceEntry[]
   category?: string
+  reparto?: RepartoId        // reparto/corsia del supermercato
   lastSeen: string           // ISO yyyy-mm-dd ultima lettura
 }
 

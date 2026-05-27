@@ -397,6 +397,8 @@ const STRINGS = {
     ordinaNomeDesc:    t('Nome (Z-A)',                      'Name (Z-A)',                  'Nombre (Z-A)'),
     ordinaPrezzoAsc:   t('Prezzo (crescente)',              'Price (low to high)',         'Precio (ascendente)'),
     ordinaPrezzoDesc:  t('Prezzo (decrescente)',            'Price (high to low)',         'Precio (descendente)'),
+    reparto:           t('Reparto',                         'Department',                  'Departamento'),
+    repartoNessuno:    t('— Nessun reparto —',              '— No department —',           '— Sin departamento —'),
   },
 
   // ── Missioni ───────────────────────────────────────────

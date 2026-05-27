@@ -8,7 +8,8 @@
 import { useState, useMemo } from 'react'
 import { ListFilter, Pencil, Trash2 } from 'lucide-react'
 import type { ProductEntry } from '../shared/types'
-import { loadProducts, saveProducts, deleteProduct, updateProductName } from '../shared/storage'
+import { REPARTI_SUPERMERCATO } from '../shared/types'
+import { loadProducts, saveProducts, deleteProduct, updateProductName, updateProductReparto } from '../shared/storage'
 import { PRODUCTS } from '../shared/labels'
 import { useDialog } from '../shared/DialogContext'
 
@@ -46,6 +47,7 @@ function ProductsCatalog() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [editingReparto, setEditingReparto] = useState('')
 
   function reload() {
     setProducts(loadProducts())
@@ -83,13 +85,15 @@ function ProductsCatalog() {
   function startEdit(p: ProductEntry) {
     setEditingId(p.id)
     setEditingName(p.name)
+    setEditingReparto(p.reparto ?? '')
   }
 
   function saveEdit(p: ProductEntry) {
-    if (editingName.trim() && editingName.trim() !== p.name) {
-      updateProductName(p.id, editingName)
-      reload()
-    }
+    const newName = editingName.trim()
+    const newReparto = editingReparto.trim()
+    if (newName && newName !== p.name) updateProductName(p.id, newName)
+    if (newReparto !== (p.reparto ?? '')) updateProductReparto(p.id, newReparto)
+    reload()
     setEditingId(null)
   }
 
@@ -224,33 +228,64 @@ function ProductsCatalog() {
                 {/* Nome / editor */}
                 <div style={{ flex: 1, minWidth: 0 }} onClick={(e) => e.stopPropagation()}>
                   {isEditing ? (
-                    <input
-                      autoFocus
-                      value={editingName}
-                      onChange={(e) => setEditingName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') saveEdit(p)
-                        if (e.key === 'Escape') cancelEdit()
-                      }}
-                      style={{
-                        width: '100%',
-                        boxSizing: 'border-box',
-                        padding: '6px 10px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--accent)',
-                        background: 'var(--input-bg)',
-                        color: 'var(--text-primary)',
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        outline: 'none',
-                      }}
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <input
+                        autoFocus
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveEdit(p)
+                          if (e.key === 'Escape') cancelEdit()
+                        }}
+                        style={{
+                          width: '100%',
+                          boxSizing: 'border-box',
+                          padding: '6px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--accent)',
+                          background: 'var(--input-bg)',
+                          color: 'var(--text-primary)',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          outline: 'none',
+                        }}
+                      />
+                      <select
+                        value={editingReparto}
+                        onChange={(e) => setEditingReparto(e.target.value)}
+                        aria-label={PRODUCTS.reparto}
+                        style={{
+                          width: '100%',
+                          boxSizing: 'border-box',
+                          padding: '5px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--input-border)',
+                          background: 'var(--input-bg)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          outline: 'none',
+                        }}
+                      >
+                        <option value="">{PRODUCTS.repartoNessuno}</option>
+                        {REPARTI_SUPERMERCATO.map((r) => (
+                          <option key={r.id} value={r.id}>{r.emoji} {r.label}</option>
+                        ))}
+                      </select>
+                    </div>
                   ) : (
                     <>
                       <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {p.name}
                       </p>
                       <p style={{ margin: '2px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
+                        {p.reparto && (() => {
+                          const r = REPARTI_SUPERMERCATO.find((x) => x.id === p.reparto)
+                          return r ? (
+                            <span style={{ marginRight: '6px', padding: '1px 6px', borderRadius: '6px', background: 'var(--accent-light)', color: 'var(--accent)', fontWeight: 600 }}>
+                              {r.emoji} {r.label}
+                            </span>
+                          ) : null
+                        })()}
                         {PRODUCTS.visto}: {formatDate(p.lastSeen)} · {PRODUCTS.occorrenze(p.priceHistory.length)}
                       </p>
                     </>

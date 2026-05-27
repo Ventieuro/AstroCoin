@@ -532,6 +532,13 @@ export function updateProductName(id: string, newName: string) {
   saveProducts(products)
 }
 
+export function updateProductReparto(id: string, reparto: string) {
+  const products = loadProducts().map((p) =>
+    p.id === id ? { ...p, reparto: (reparto.trim() || undefined) as ProductEntry['reparto'] } : p,
+  )
+  saveProducts(products)
+}
+
 
 const PIN_KEY = 'andromeda-pin'
 const PIN_SESSION_KEY = 'andromeda-unlocked'
