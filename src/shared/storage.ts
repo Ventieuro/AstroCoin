@@ -80,6 +80,13 @@ function idbSet(db: IDBDatabase, key: ManagedKey, value: string): Promise<void> 
 export async function initPersistentStorage(): Promise<void> {
   if (indexedDbReady) return
 
+  // Richiedi storage persistente: previene la cancellazione automatica da parte
+  // del browser (Chrome su Android evicta i dati best-effort quando lo storage
+  // del dispositivo è sotto pressione o il sito non viene visitato per settimane).
+  if (navigator.storage?.persist) {
+    navigator.storage.persist().catch(() => {/* silenzioso se negato */})
+  }
+
   if (typeof indexedDB === 'undefined') {
     storageEngine = 'localStorage'
     for (const key of MANAGED_KEYS) {
